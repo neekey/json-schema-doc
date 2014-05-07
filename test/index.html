@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="../src/index.css"/>
+    <script type="text/javascript" src="../src/index.js"></script>
+</head>
+<body>
+
+<div id="J_Schema">
+</div>
+
+<script>
+
+    var testData = {
+        type: 'object',
+        title: '小轰是个脑残',
+        description: '这个还用说么',
+        maxProperties: 10,
+        minProperties: 0,
+        required: [ 'name', 'age' ],
+        additionalProperties: {
+            type: 'string'
+        },
+        patternProperties: {
+            '^lala': {
+                type: 'string',
+                description: '用户名称'
+            }
+        },
+        properties: {
+            name: {
+                type: 'string',
+                description: '用户名称',
+
+                pattern: /lala/,
+                enum: [ 'lala', 'neneky'],
+                default: 'lala',
+                format: 'email',
+                allOf: [
+                    {
+                        type: 'string',
+                        maxLength: 10,
+                        minLength: 0
+                    }
+                ]
+            },
+            age: {
+                type: 'integer',
+                description: '用户年龄',
+                maximum: 100,
+                minimum: 0,
+                exclusiveMaximum: true,
+                exclusiveMinimum: true
+            },
+            salary: {
+                type: 'number',
+                multipleOf: 10,
+                maximum: 100000,
+                minimum: 1000,
+                description: '用户薪酬'
+            },
+            married: {
+                type: 'boolean',
+                description: '是否已经结婚'
+            },
+            hobbies: {
+                type: 'array',
+                description: '用户爱好',
+                maxItems: 10,
+                minItems: 0,
+                uniqueItems: true,
+                items: {
+                    type: 'object',
+                    description: '单个爱好信息',
+                    properties: {
+                        name: {
+                            type: 'string',
+                            description: '爱好名称'
+                        },
+                        reason: {
+                            type: 'string',
+                            description: '爱好的原因'
+                        }
+                    }
+                }
+            },
+
+            reputation: {
+                type: 'array',
+                description: '职业',
+                additionalItems: {
+                    type: 'object',
+                    description: '其他职业信息',
+                    properties: {
+                        name: {
+                            type: 'string',
+                            description: '职业名称'
+                        }
+                    }
+                },
+                items: [
+                    {
+                        type: "object",
+                        description: "A类型职业",
+                        properties: {
+                            english: {
+                                type: 'integer',
+                                description: "英语CET等级要求"
+                            },
+                            age: {
+                                type: "integer",
+                                description: "职业要求的年龄"
+                            }
+                        }
+                    },
+                    {
+                        type: "object",
+                        description: "B类型职业",
+                        properties: {
+                            english: {
+                                type: 'integer',
+                                description: "英语CET等级要求"
+                            },
+                            age: {
+                                type: "integer",
+                                description: "职业要求的年龄"
+                            }
+                        }
+                    },
+                    {
+                        $ref: '#/definitions/cjob'
+                    },
+                    {
+                        $ref: 'http://schema.remote.rg/schema.json'
+                    }
+                ]
+            }
+        },
+
+        dependences: {
+            age: [ 'hobbies', 'married' ]
+        },
+
+        definitions: {
+            cjob: {
+                type: "object",
+                description: "C类型职业",
+                properties: {
+                    english: {
+                        type: 'integer',
+                        description: "英语CET等级要求"
+                    },
+                    age: {
+                        type: "integer",
+                        description: "职业要求的年龄"
+                    }
+                }
+            }
+        }
+    };
+
+    realData = {
+        "type": "object",
+        "description": "说明下换购信息部分的逻辑：\n- 先查看用户是否具有换购资格，若没有，则显示没有资格\n- 若有换购资格，且已经完成换购，则现实已经换购\n- 若有资格且为换购，则逻辑如下：\n- 若状态为available，展示可换购\n- 若为notBegin，根据当前的groupNum：\n- 若为第一个换购批次，显示换购尚未开始...\n- 若不是第一次，显示上一次换购已经结束，下一次换购....\n- 若状态为over，且allOver为true，显示 很遗憾您这个季度没有换购到奖品",
+        "properties": {
+            "activityInfo": {
+                "type": "object",
+                "description": "该季活动信息",
+                "properties": {
+                    "state": {
+                        "type": "string",
+                        "description": "活动的当前状态，未开始，进行中，已经结束",
+                        "enum": ["wait", "process", "over"]
+                    },
+                    "deadline": {
+                        "type": "integer",
+                        "description": "活动的截至日期"
+                    },
+                    "remainDays": {
+                        "type": "integer",
+                        "description": "活动剩余天数"
+                    },
+                    "needDays": {
+                        "type": "integer",
+                        "description": "活动需要累计判定的天数"
+                    },
+                    "seasonNum": {
+                        "type": "integer",
+                        "description": "当前为第几季度。前端可以根据这个值，对应到本季XX之星的名称",
+                        "enum": [1, 2, 3, 4]
+                    }
+                },
+                "required": ["state", "deadline", "remainDays", "needDays", "seasonNum"]
+            },
+            "exchangeInfo": {
+                "type": "object",
+                "description": "换购信息",
+                "properties": {
+                    "currentGroupState": {
+                        "type": "string",
+                        "description": "当前批次换购状态\n\nnotBegin: 当前批次换购未开始\navailable：当前批次换购进行中\nover：当前换购批次已经结束",
+                        "enum": ["notBegin", "available", "over"]
+                    },
+                    "allOver": {
+                        "type": "boolean",
+                        "description": "是否所有换购都已经结束"
+                    },
+                    "currentGroupNum": {
+                        "type": "integer",
+                        "description": "当前的换购批次"
+                    },
+                    "beginDate": {
+                        "type": "integer",
+                        "description": "当前批次换购开始时间,毫秒时间戳"
+                    },
+                    "exchangeUrl": {
+                        "type": "string",
+                        "description": "换购连接"
+                    }
+                },
+                "required": ["allOver", "currentGroupNum", "beginDate"]
+            },
+            "participateInfo": {
+                "type": "object",
+                "description": "用户的参与情况",
+                "properties": {
+                    "finishedDays": {
+                        "type": "integer",
+                        "description": "用户在该季活动中累计判定了的天数"
+                    },
+                    "getAdmit": {
+                        "type": "boolean",
+                        "description": "用户是否获得了该季评审之星资格"
+                    },
+                    "exchanged": {
+                        "type": "boolean",
+                        "description": "用户是否进行了换购"
+                    },
+                    "processLevel": {
+                        "type": "integer",
+                        "description": "用户当前进展的等级，从0开始"
+                    }
+                },
+                "required": ["finishedDays", "getAdmit", "exchanged"]
+            }
+        },
+        "required": ["activityInfo", "exchangeInfo", "participateInfo"]
+    };
+
+
+    document.getElementById( 'J_Schema' ).innerHTML = JsonSchemaDocGenerator( realData, {
+        refs: {
+            'http://schema.remote.org/schema.json': {
+                type: "object",
+                description: "D类型职业",
+                properties: {
+                    english: {
+                        type: 'integer',
+                        description: "英语CET等级要求"
+                    },
+                    age: {
+                        type: "integer",
+                        description: "职业要求的年龄"
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<div class="json-schema-doc">
+    <div class="schema-block">
+        <div class="summary">
+            <span class="name">数据接口</span>
+            <span class="type">object</span>
+            <span class="desc">接口数据</span>
+        </div>
+
+        <div class="detail">
+            <ul class="children">
+                <li>
+                    <div class="schema-block">
+                        <div class="summary">
+                            <span class="name">name</span>
+                            <span class="type">string</span>
+                            <span class="desc">这是用户的名称</span>
+                        </div>
+
+                        <div class="detail">
+                            <div class="description">
+                            </div>
+                            <ul class="constraint">
+                                <li>
+                                    <span class="filed">长度</span>
+                                    <span class="value">5 < 10</span>
+                                </li>
+                                <li>
+                                    <span class="filed">可取值</span>
+                                    <span class="value">1, 2, 5, 10</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="schema-block">
+                        <div class="summary">
+                            <span class="name">name</span>
+                            <span class="type">object</span>
+                            <span class="desc">这是用户的名称</span>
+                        </div>
+
+                        <div class="detail">
+                            <div class="description">
+                            </div>
+                            <ul class="constraint">
+                                <li>
+                                    <span class="filed">长度</span>
+                                    <span class="value">5 < 10</span>
+                                </li>
+                                <li>
+                                    <span class="filed">可取值</span>
+                                    <span class="value">1, 2, 5, 10</span>
+                                </li>
+                            </ul>
+
+                            <ul class="children">
+                                <li>
+                                    <div class="json-schema-doc">
+                                        <div class="schema-block">
+                                            <div class="summary">
+                                                <span class="name">name</span>
+                                                <span class="type">string</span>
+                                                <span class="desc">这是用户的名称</span>
+                                            </div>
+
+                                            <div class="detail">
+                                                <div class="description">
+                                                </div>
+                                                <ul class="constraint">
+                                                    <li>
+                                                        <span class="filed">长度</span>
+                                                        <span class="value">5 < 10</span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="filed">可取值</span>
+                                                        <span class="value">1, 2, 5, 10</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="schema-block">
+                        <div class="summary">
+                            <span class="name">list</span>
+                            <span class="type">array</span>
+                            <span class="desc">这是用户的列表</span>
+                        </div>
+
+                        <div class="detail">
+                            <ul class="constraint">
+                                <li>
+                                    <span class="filed">长度</span>
+                                    <span class="value">5 < 10</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <ul class="children">
+                            <li>
+                                <div class="schema-block">
+                                    <div class="summary">
+                                        <span class="name">每个成员</span>
+                                        <span class="type">object</span>
+                                        <span class="desc">每个用户信息</span>
+                                    </div>
+
+                                    <div class="detail">
+
+                                        <ul class="children">
+                                            <li>
+                                                <div class="schema-block">
+                                                    <div class="summary">
+                                                        <span class="name">name</span>
+                                                        <span class="type">string</span>
+                                                        <span class="desc">用户名称</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="schema-block">
+                                                    <div class="summary">
+                                                        <span class="name">sex</span>
+                                                        <span class="type">string</span>
+                                                        <span class="desc">用户性别</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="schema-block">
+                                                    <div class="summary">
+                                                        <span class="name">age</span>
+                                                        <span class="type">number</span>
+                                                        <span class="desc">用户年龄</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+div.json-schema-doc {
+    font-size: 14px;
+}
+.schema-block .summary .name {
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+}
+.schema-block .summary .type {
+    margin-left: 20px;
+    color: red;
+    background: #999;
+    color: white;
+    line-height: 14px;
+    border-radius: 5px;
+    padding: 2px 5px;
+}
+.schema-block .summary .desc {
+    float: right;
+    color: #999;
+}
+.schema-block ul {
+    list-style: none;
+    padding-left: 2em;
+    margin: 10px 0;
+}
+.schema-block .description {
+    padding-left: 2em;
+    color: #999;
+    margin-top: 10px;
+}
+.schema-block {
+    background: white;
+    padding: 9px;
+    border: #efefef 1px solid;
+    border-radius: 5px;
+}
+.schema-block .constraint > li > div {
+    float: left;
+}
+.schema-block .constraint li {
+    overflow: hidden;
+}
+.schema-block .constraint li .value {
+    margin-left: 1em;
+    /* line-height: 16px; */
+}
+.schema-block .constraint li .field:after {
+    content: ":";
+}
+.schema-block .constraint {
+    color: #666;
+    line-height: 20px;
+}
+.schema-block .children > li + li {
+    margin-top: 10px;
+}

@@ -1,0 +1,20 @@
+{
+  "name": "json-schema-doc",
+  "version": "0.0.1",
+  "description": "documentation for json-schema",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.alibaba-inc.com:jsonnanny/json-schema-doc.git"
+  },
+  "keywords": [
+    "json-schema",
+    "documentation",
+    "generator"
+  ],
+  "author": "yinruo.nyj",
+  "license": "MIT"
+}
