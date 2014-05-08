@@ -43,12 +43,20 @@
         doc: '\
             <div class="json-schema-doc">\
             <%=content%>\
+            <script>\
+            \
+            </script>\
             </div>\
         ',
 
         schemaBlock: '\
-            <div class="schema-block schema-block-{type}">\
-                <div class="summary">\
+            <div class="schema-block schema-block-<%=type%> \
+            <% if( isRoot ){ %> unfold <% } %>">\
+                <div class="summary\
+                <% if( !isRoot && ( ( description && description.length > 20 ) || constraint || children ) ){ %> \
+                schema-detail-trigger J_SchemaDetailTrigger\
+                <% } %>\
+                ">\
                 <span class="name"><%=name%></span>\
                 <span class="type"><%=type%></span>\
                 <span class="desc"><%=(description && description.substring(0, 20))%><%=( description && description.length > 20 ? "..." : "")%></span>\
@@ -94,7 +102,9 @@
     var Generator = function( schema, options ){
         options = options || {};
         // 默认以 title 作为name，没有就只有描述
-        return Template( HTML_TPLS.doc, { content: Generator._generator( schema.title, schema, schema, options ) });
+        return Template( HTML_TPLS.doc, {
+            content: Generator._generator( schema.title, schema, schema, options )
+        });
     };
 
     Generator._generator = function( name, schema, wholeScheme, options ){
@@ -207,8 +217,6 @@
          * 进行HTML构建
          */
 
-            console.log( 'constraint', constraint );
-
         // 渲染约束
         var constraintStr = Template( HTML_TPLS.constraint, { list: constraint } );
 
@@ -217,8 +225,9 @@
             name: name,
             type: schema.type,
             description: schema.description,
-            constraint: constraintStr,
-            children: childrenStr
+            constraint: constraintStr ? constraintStr.replace( /\s*/, '' ) : constraintStr,
+            children: childrenStr ? childrenStr.replace( /\s*/, '' ) : childrenStr,
+            isRoot: schema === wholeScheme
         };
 
         // 进行block的渲染

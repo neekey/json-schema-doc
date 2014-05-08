@@ -5,13 +5,30 @@
     <title></title>
     <link rel="stylesheet" type="text/css" href="../src/index.css"/>
     <script type="text/javascript" src="../src/index.js"></script>
+    <script src="http://g.tbcdn.cn/??kissy/k/1.4.1/seed-min.js"></script>
 </head>
 <body>
 
 <div id="J_Schema">
 </div>
 
+
 <script>
+
+    KISSY.ready(function( S ){
+
+        S.use( 'node', function( S, Node ){
+            var doc = Node.one( '.json-schema-doc' );
+
+            if( doc ){
+                doc.delegate( 'click', '.J_SchemaDetailTrigger', function( e ){
+                    var trigger = Node.one( e.currentTarget );
+                    trigger.parent().toggleClass( 'unfold' );
+                });
+            }
+        })
+
+    });
 
     var testData = {
         type: 'object',
@@ -250,7 +267,7 @@
     };
 
 
-    document.getElementById( 'J_Schema' ).innerHTML = JsonSchemaDocGenerator( realData, {
+    document.getElementById( 'J_Schema' ).innerHTML = JsonSchemaDocGenerator( testData, {
         refs: {
             'http://schema.remote.org/schema.json': {
                 type: "object",
