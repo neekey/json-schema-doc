@@ -1,7 +1,10 @@
 !(function(){
 
-    // Simple JavaScript Templating
-    // John Resig - http://ejohn.org/ - MIT Licensed
+    /**
+     * 不想依赖太多库，所以直接用这个简单的模板
+     * Simple JavaScript Templating
+     * John Resig - http://ejohn.org/ - MIT Licensed
+     */
     var Template = (function(){
         var cache = {};
 
@@ -36,6 +39,13 @@
         };
     })();
 
+
+    /**
+     * 判断当前JS环境
+     */
+    var hasDefine = typeof define === 'function';
+    var hasExports = typeof module !== 'undefined' && module.exports;
+
     /**
      * 文档相关的HTML模板
      */
@@ -49,22 +59,26 @@
             </div>\
         ',
 
+        /**
+         * 其中 interactive 用来区分模板是否需要支持交互，若需要，则会再渲染出一些钩子出来
+         */
         schemaBlock: '\
             <div class="schema-block schema-block-<%=type%> \
-            <% if( isRoot ){ %> unfold <% } %>">\
+            <% if( isRoot || !interactive ){ %> unfold <% } %>">\
                 <div class="summary\
-                <% if( !isRoot && ( ( description && description.length > 20 ) || constraint || children ) ){ %> \
+                <% if( !isRoot && interactive && ( ( description && description.length > 20 ) || constraint || children ) ){ %> \
                 schema-detail-trigger J_SchemaDetailTrigger\
                 <% } %>\
                 ">\
-                <span class="name"><%=name%></span>\
+                <% if( name ){ %><span class="name"><%=name%></span><% } %>\
                 <span class="type"><%=type%></span>\
+                <% if( required ){ %><span class="required">（必要）</span><% } %>\
                 <span class="desc"><%=(description && description.substring(0, 20))%><%=( description && description.length > 20 ? "..." : "")%></span>\
             </div>\
             <div class="detail">\
                 <% if( description && description.length > 20 ){ %>\
                 <div class="description">\
-                    <%=description%>\
+                    <%=(description.replace( /\\n/g, "<br>" ))%>\
                 </div>\
                 <% } %>\
                 <% if( constraint ){ %>\
@@ -94,10 +108,11 @@
     };
 
     /**
-     *
+     * 根据给定的Schema，生成对应的HTML
      * @param {Object} schema
      * @param {Object} [options]
-     * @param {Object} options.refs
+     * @param {Object} options.refs { path: schema }
+     * @return {String} HTML结构
      */
     var Generator = function( schema, options ){
         options = options || {};
@@ -105,6 +120,40 @@
         return Template( HTML_TPLS.doc, {
             content: Generator._generator( schema.title, schema, schema, options )
         });
+    };
+
+    /**
+     * 若需要交互功能，则用户可以自带jQuery，然后调用这个方法
+     * @param schema
+     * @param options
+     * @param {ELEMENTtarget
+     * @returns {*}
+     */
+    Generator.buildWithJQ = function( schema, options, target ){
+
+        if( typeof jQuery === 'undefined' ){
+            throw new Error( 'buildWithJQ 方法依赖jQuery' );
+        }
+        else {
+
+            options = options || {};
+            options.interactive = true;
+
+            var HTML = Generator.apply( this, arguments );
+
+            var dom = $( HTML );
+
+            dom.delegate( '.J_SchemaDetailTrigger', 'click', function( e ){
+                var trigger = $( e.currentTarget );
+                trigger.parent().toggleClass( 'unfold' );
+            });
+
+            if( target ){
+                $( target ).append( dom );
+            }
+
+            return dom[0];
+        }
     };
 
     Generator._generator = function( name, schema, wholeScheme, options ){
@@ -146,15 +195,15 @@
 
         // todo 枚举暂时只支持数字和字符串
         if( schema.enum ){
-            constraint.push( { field: '枚举值', value: schema.enum.join( ', ' ) });
+            constraint.push( { field: '枚举值:', value: schema.enum.join( ', ' ) });
         }
 
         if( schema.default ){
-            constraint.push( { field: '默认值', value: schema.default });
+            constraint.push( { field: '默认值:', value: schema.default });
         }
 
         if( schema.format ){
-            constraint.push( { field: '格式规范', value: schema.format });
+            constraint.push( { field: '格式规范:', value: schema.format });
         }
 
         if( schema.allOf && schema.allOf.length ){
@@ -166,7 +215,7 @@
                 cons.push( this._generator( '约束' + ( index + 1 ), item, wholeScheme, options ));
             }
 
-            constraint.push( { field: '需要遵循所有约束', value: cons.join( ' ' ) });
+            constraint.push( { field: '需要遵循所有约束:', value: cons.join( ' ' ) });
         }
 
         if( schema.oneOf && schema.oneOf.length ){
@@ -178,7 +227,7 @@
                 cons.push( this._generator( '约束' + ( index + 1 ), item, wholeScheme, options ));
             }
 
-            constraint.push( { field: '需要遵循其中的某个约束', value: cons.join( ' ' ) });
+            constraint.push( { field: '需要遵循其中的某个约束:', value: cons.join( ' ' ) });
         }
 
         if( schema.anyOf && schema.anyOf.length ){
@@ -190,11 +239,11 @@
                 cons.push( this._generator( '约束' + ( index + 1 ), item, wholeScheme, options ));
             }
 
-            constraint.push( { field: '需要遵循其中任意个约束', value: cons.join( ' ' ) });
+            constraint.push( { field: '需要遵循其中任意个约束:', value: cons.join( ' ' ) });
         }
 
         if( schema.not ){
-            constraint.push( { field: '不应该遵循该约束',
+            constraint.push( { field: '不应该遵循该约束:',
                 value: cons.push( this._generator( '约束', schema.not, wholeScheme, options ))
             });
         }
@@ -204,7 +253,6 @@
          */
         var subGeneratorName = '_' + schema.type + 'Generator';
 
-        console.log( subGeneratorName, schema );
         if( this[ subGeneratorName ] ){
             var subRet = this[ subGeneratorName ]( schema, wholeScheme, options );
             constraint = constraint.concat( subRet.constraint || [] );
@@ -227,7 +275,9 @@
             description: schema.description,
             constraint: constraintStr ? constraintStr.replace( /\s*/, '' ) : constraintStr,
             children: childrenStr ? childrenStr.replace( /\s*/, '' ) : childrenStr,
-            isRoot: schema === wholeScheme
+            isRoot: schema === wholeScheme,
+            required: schema.required,
+            interactive: options.interactive
         };
 
         // 进行block的渲染
@@ -253,11 +303,6 @@
          * 先查找约束
          */
 
-        // required
-        if( schema.required && schema.required.length ){
-            constraint.push( { field: '必要属性', value:schema.required.join( ', ' ) } );
-        }
-
         // dependences
         if( schema.dependences ){
             for( key in schema.dependences ){
@@ -265,7 +310,7 @@
 
                 if( value ){
                     con = {};
-                    con.field = '若包含字段 “' + key + '” 则';
+                    con.field = '若包含字段 “' + key + '” 则:';
 
                     // 是否为数组，简单检查
                     if( value.length && value[0] ){
@@ -283,12 +328,12 @@
 
         // minProperties
         if( schema.minProperties >= 0 ){
-            constraint.push( { field: '最少包含属性值数量', value: schema.minProperties } );
+            constraint.push( { field: '最少包含属性值数量:', value: schema.minProperties } );
         }
 
         // maxProperties
         if( schema.maxProperties >= 0 ){
-            constraint.push( { field: '最多包含属性值数量', value: schema.maxProperties } );
+            constraint.push( { field: '最多包含属性值数量:', value: schema.maxProperties } );
         }
 
         /**
@@ -298,6 +343,12 @@
         // properties
         if( schema.properties ){
             for( key in schema.properties ){
+
+                // 添加required
+                if( schema.required && schema.required.length > 0 && schema.properties[ key ] && schema.required.indexOf( key ) >= 0 ){
+                    schema.properties[ key ].required = true;
+                }
+
                 children.push( this._generator( key, schema.properties[ key ], wholeScheme, options ) );
             }
         }
@@ -339,9 +390,9 @@
          */
         if( schema.maxItems >= 0 || schema.minItems >= 0 ){
 
-            constraint.push( { field: '列表长度',
-                value: ( schema.maxItems >= 0 ? '<= ' + schema.maxItems : ' ' )
-                + ( schema.minItems >= 0 ? '>= ' + schema.minItems : '' )
+            constraint.push( { field: '列表长度:',
+                value: ( schema.maxItems >= 0 ? ' 小于等于' + schema.maxItems : ' ' )
+                + ( schema.minItems >= 0 ? ' 大于等于' + schema.minItems : '' )
             });
         }
 
@@ -390,15 +441,15 @@
 
         // pattern
         if( schema.pattern ){
-            constraint.push( { field: '需要遵循正则', value: schema.pattern } );
+            constraint.push( { field: '需要遵循正则:', value: schema.pattern } );
         }
 
         // maxLength minLength
         if( schema.maxLength >= 0 || schema.minLength >= 0 ){
 
-            constraint.push( { field: '字符串长度',
-                value: ( schema.maxLength >= 0 ? '<= ' + schema.maxLength : ' ' )
-                    + ( schema.minLength >= 0 ? '>= ' + schema.minLength : '' )
+            constraint.push( { field: '字符串长度:',
+                value: ( schema.maxLength >= 0 ? ' 小于等于' + schema.maxLength : ' ' )
+                    + ( schema.minLength >= 0 ? ' 大于等于' + schema.minLength : '' )
             });
         }
 
@@ -420,9 +471,9 @@
 
         if( schema.maximum !== undefined || schema.minimum !== undefined ){
 
-            constraint.push( { field: '数值大小',
-                value: ( schema.maximum !== undefined ? ( '<' + ( schema.exclusiveMaximum ? '=' : '' ) + ' ' + schema.maximum ) : ' ' )
-                    + ( schema.minimum !== undefined ? ( '>' + ( schema.exclusiveMinimum ? '=' : '' ) + ' ' + schema.minimum ) : '' )
+            constraint.push( { field: '数值大小:',
+                value: ( schema.maximum !== undefined ? ( ' 小于' + ( schema.exclusiveMaximum ? '等于' : '' ) + schema.maximum ) : ' ' )
+                    + ( schema.minimum !== undefined ? ( ' 大于' + ( schema.exclusiveMinimum ? '等于' : '' ) + schema.minimum ) : '' )
             });
         }
 
@@ -444,12 +495,9 @@
     };
 
 
-
     /**
-     * 判断当前JS环境
+     * 根据不同的JS环境输出内容
      */
-    var hasDefine = typeof define === 'function';
-    var hasExports = typeof module !== 'undefined' && module.exports;
 
     if( hasExports ){
         module.exports = Generator;

@@ -5,7 +5,10 @@
     "yinruo.nyj <yinruo.nyj@taobao.com>"
   ],
   "description": "documentation generator for json-schema",
-  "main": "src/index.js src/index.css",
+  "main": [
+      "./src/index.js",
+      "./src/index.css"
+  ],
   "keywords": [
     "json-schema",
     "documentation",
@@ -16,7 +19,6 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "test",
-    "tests"
+    "test"
   ]
 }

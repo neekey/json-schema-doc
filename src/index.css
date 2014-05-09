@@ -2,108 +2,121 @@
     font-size: 14px;
 }
 
-.schema-block {
+.json-schema-doc .schema-block {
     font-family: arial;
     border-radius: 5px;
     padding: 2px;
     border-radius: 5px;
-    background: rgba(240, 240, 240, 0.5);
+    background: rgba(220, 220, 220, 0.2);
     border: #dedede 1px dashed;
 }
 
-.schema-block.unfold > .detail {
+.json-schema-doc .schema-block.unfold > .detail {
     display: block;
 }
 
-.schema-block ul {
+.json-schema-doc .schema-block ul {
     list-style: none;
     margin: 10px 0 10px 2em;
     padding: 0;
 }
 
-.schema-block .detail {
+.json-schema-doc .schema-block .detail {
     display: none;
 }
-.schema-block .description {
+.json-schema-doc .schema-block .description {
     margin-left: 2em;
     color: #999;
     margin-top: 10px;
 }
 
-.schema-block .summary {
-    padding: 6px;
+.json-schema-doc .schema-block .summary {
     border-radius: 5px;
+    padding: 6px 6px 6px 20px;
+    position: relative;
 }
-.schema-block .schema-detail-trigger {
+.json-schema-doc .schema-block .schema-detail-trigger {
     cursor: pointer;
 }
-.schema-block .schema-detail-trigger:hover {
+.json-schema-doc .schema-block .schema-detail-trigger:hover {
     background: rgba(220, 220, 220, 0.5);
 }
 
-.schema-block .summary .name {
+.json-schema-doc .schema-block .schema-detail-trigger:before {
+    content: "+";
+    position: absolute;
+    left: 7px;
+    color: #999;
+}
+
+.json-schema-doc .schema-block.unfold > .schema-detail-trigger:before {
+    content: "-";
+}
+
+.json-schema-doc .schema-block .summary .name {
     font-size: 14px;
     color: #333;
     font-weight: bold;
+    margin-right: 20px;
 }
-.schema-block .summary .type {
-    margin-left: 20px;
+.json-schema-doc .schema-block .summary .type {
     line-height: 14px;
     border-radius: 5px;
 }
 
-.schema-block-object .summary .type {
+.json-schema-doc .schema-block .summary .required {
+    color: #999;
+    margin-left: 10px;
+}
+
+.json-schema-doc .schema-block-object .summary .type {
     color: brown;
 }
 
-.schema-block-array .summary .type {
+.json-schema-doc .schema-block-array .summary .type {
     color: steelblue;
 }
 
-.schema-block-string .summary .type {
+.json-schema-doc .schema-block-string .summary .type {
     color: green;
 }
 
-.schema-block-number .summary .type {
+.json-schema-doc .schema-block-number .summary .type {
     color: #00f;
 }
 
-.schema-block-integer .summary .type {
+.json-schema-doc .schema-block-integer .summary .type {
     color: #8a2be2;
 }
-.schema-block-boolean .summary .type {
+.json-schema-doc .schema-block-boolean .summary .type {
     color: #ff4500;
 }
-.schema-block-null .summary .type {
+.json-schema-doc .schema-block-null .summary .type {
     color: red;
 }
 
-.schema-block .summary .desc {
+.json-schema-doc .schema-block .summary .desc {
     float: right;
     color: #999;
 }
 
-.schema-block .constraint {
+.json-schema-doc .schema-block .constraint {
     line-height: 20px;
     padding: 5px 10px;
     border-radius: 5px;
     border: #ddd 1px dashed;
     color: #999;
 }
-.schema-block .constraint > li > div {
+.json-schema-doc .schema-block .constraint > li > div {
     float: left;
 }
-.schema-block .constraint li {
+.json-schema-doc .schema-block .constraint li {
     overflow: hidden;
 }
-.schema-block .constraint li .value {
+.json-schema-doc .schema-block .constraint li .value {
     margin-left: 1em;
 }
-.schema-block .constraint li .field:after {
-    content: ":";
-}
 
-
-.schema-block .children > li + li {
+.json-schema-doc .schema-block .children > li + li {
     margin-top: 5px;
 }

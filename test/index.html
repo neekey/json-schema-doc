@@ -4,31 +4,20 @@
     <meta charset="UTF-8">
     <title></title>
     <link rel="stylesheet" type="text/css" href="../src/index.css"/>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="../src/index.js"></script>
-    <script src="http://g.tbcdn.cn/??kissy/k/1.4.1/seed-min.js"></script>
 </head>
 <body>
 
-<div id="J_Schema">
+<h2>包含交互功能的文档</h2>
+<div id="J_SchemaWidthJQ">
 </div>
 
+<h2>纯HTML展示的文档</h2>
+<div id="J_SchemaRawHTML">
+</div>
 
 <script>
-
-    KISSY.ready(function( S ){
-
-        S.use( 'node', function( S, Node ){
-            var doc = Node.one( '.json-schema-doc' );
-
-            if( doc ){
-                doc.delegate( 'click', '.J_SchemaDetailTrigger', function( e ){
-                    var trigger = Node.one( e.currentTarget );
-                    trigger.parent().toggleClass( 'unfold' );
-                });
-            }
-        })
-
-    });
 
     var testData = {
         type: 'object',
@@ -180,94 +169,135 @@
 
     realData = {
         "type": "object",
-        "description": "说明下换购信息部分的逻辑：\n- 先查看用户是否具有换购资格，若没有，则显示没有资格\n- 若有换购资格，且已经完成换购，则现实已经换购\n- 若有资格且为换购，则逻辑如下：\n- 若状态为available，展示可换购\n- 若为notBegin，根据当前的groupNum：\n- 若为第一个换购批次，显示换购尚未开始...\n- 若不是第一次，显示上一次换购已经结束，下一次换购....\n- 若状态为over，且allOver为true，显示 很遗憾您这个季度没有换购到奖品",
+        "description": "接口返回值",
         "properties": {
-            "activityInfo": {
+            "icon": {
                 "type": "object",
-                "description": "该季活动信息",
+                "description": "左侧icon",
                 "properties": {
-                    "state": {
+                    "img": {
                         "type": "string",
-                        "description": "活动的当前状态，未开始，进行中，已经结束",
-                        "enum": ["wait", "process", "over"]
+                        "description": "图片地址"
                     },
-                    "deadline": {
-                        "type": "integer",
-                        "description": "活动的截至日期"
-                    },
-                    "remainDays": {
-                        "type": "integer",
-                        "description": "活动剩余天数"
-                    },
-                    "needDays": {
-                        "type": "integer",
-                        "description": "活动需要累计判定的天数"
-                    },
-                    "seasonNum": {
-                        "type": "integer",
-                        "description": "当前为第几季度。前端可以根据这个值，对应到本季XX之星的名称",
-                        "enum": [1, 2, 3, 4]
+                    "link": {
+                        "type": "string",
+                        "description": "图片连接"
                     }
                 },
-                "required": ["state", "deadline", "remainDays", "needDays", "seasonNum"]
+                "required": ["img"]
             },
-            "exchangeInfo": {
+            "info": {
                 "type": "object",
-                "description": "换购信息",
+                "description": "任务的文字信息",
                 "properties": {
-                    "currentGroupState": {
-                        "type": "string",
-                        "description": "当前批次换购状态\n\nnotBegin: 当前批次换购未开始\navailable：当前批次换购进行中\nover：当前换购批次已经结束",
-                        "enum": ["notBegin", "available", "over"]
+                    "title": {
+                        "type": "object",
+                        "description": "标题",
+                        "properties": {
+                            "text": {
+                                "type": "string",
+                                "description": "标题文字"
+                            },
+                            "link": {
+                                "type": "string",
+                                "description": "标题连接"
+                            }
+                        },
+                        "required": ["text"]
                     },
-                    "allOver": {
-                        "type": "boolean",
-                        "description": "是否所有换购都已经结束"
-                    },
-                    "currentGroupNum": {
-                        "type": "integer",
-                        "description": "当前的换购批次"
-                    },
-                    "beginDate": {
-                        "type": "integer",
-                        "description": "当前批次换购开始时间,毫秒时间戳"
-                    },
-                    "exchangeUrl": {
-                        "type": "string",
-                        "description": "换购连接"
+                    "detail": {
+                        "type": "array",
+                        "description": "详细的文字信息",
+                        "items": {
+                            "type": "object",
+                            "description": "每一条行信息",
+                            "properties": {
+                                "key": {
+                                    "type": "string",
+                                    "description": "该行信息标题"
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "description": "该行信息内容"
+                                },
+                                "style": {
+                                    "type": "string",
+                                    "description": "若连接需要一定的样式风格，可以使用预置的style风格：\n\"quality\"：质检凭证\n\"shipping\"：物流凭证\n\"camera\"：宝贝实拍\n\"sales\"：促销\n\"taomm\"：淘女郎",
+                                    "enum": ["quality", "shipping", "camera", "sales", "taomm"]
+                                },
+                                "link": {
+                                    "type": "string",
+                                    "description": "该行信息内容连接"
+                                }
+                            },
+                            "required": ["key", "value"]
+                        }
                     }
                 },
-                "required": ["allOver", "currentGroupNum", "beginDate"]
+                "required": ["title"]
             },
-            "participateInfo": {
+            "picture": {
                 "type": "object",
-                "description": "用户的参与情况",
+                "description": "图片信息",
                 "properties": {
-                    "finishedDays": {
-                        "type": "integer",
-                        "description": "用户在该季活动中累计判定了的天数"
+                    "pic": {
+                        "type": "object",
+                        "description": "单张图片类型",
+                        "properties": {
+                            "img": {
+                                "type": "string",
+                                "description": "图片地址"
+                            },
+                            "link": {
+                                "type": "string",
+                                "description": "图片连接或者大图地址"
+                            }
+                        }
                     },
-                    "getAdmit": {
-                        "type": "boolean",
-                        "description": "用户是否获得了该季评审之星资格"
+                    "pics": {
+                        "type": "array",
+                        "description": "多张图片类型",
+                        "items": {
+                            "type": "object",
+                            "description": "每张图片信息",
+                            "properties": {
+                                "img": {
+                                    "type": "string",
+                                    "description": "图片地址"
+                                },
+                                "link": {
+                                    "type": "string",
+                                    "description": "图片连接或者大图地址"
+                                }
+                            }
+                        }
                     },
-                    "exchanged": {
-                        "type": "boolean",
-                        "description": "用户是否进行了换购"
-                    },
-                    "processLevel": {
-                        "type": "integer",
-                        "description": "用户当前进展的等级，从0开始"
+                    "title": {
+                        "type": "string",
+                        "description": "图片区域的标题内容"
                     }
-                },
-                "required": ["finishedDays", "getAdmit", "exchanged"]
+                }
+            },
+            "more": {
+                "type": "object",
+                "description": "更多信息连接",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "连接文案"
+                    },
+                    "link": {
+                        "type": "string",
+                        "description": "连接地址"
+                    }
+                }
             }
         },
-        "required": ["activityInfo", "exchangeInfo", "participateInfo"]
+        "required": ["info", "picture"]
     };
 
 
-    document.getElementById( 'J_Schema' ).innerHTML = JsonSchemaDocGenerator( testData, {
+    document.getElementById( 'J_SchemaRawHTML' ).innerHTML = JsonSchemaDocGenerator( realData, {
         refs: {
             'http://schema.remote.org/schema.json': {
                 type: "object",
@@ -285,163 +315,30 @@
             }
         }
     });
+
+    window.onload = function(){
+
+        debugger;
+        JsonSchemaDocGenerator.buildWithJQ( realData, {
+            refs: {
+                'http://schema.remote.org/schema.json': {
+                    type: "object",
+                    description: "D类型职业",
+                    properties: {
+                        english: {
+                            type: 'integer',
+                            description: "英语CET等级要求"
+                        },
+                        age: {
+                            type: "integer",
+                            description: "职业要求的年龄"
+                        }
+                    }
+                }
+            }
+        }, document.getElementById( 'J_SchemaWidthJQ' ) );
+    };
 </script>
-
-<div class="json-schema-doc">
-    <div class="schema-block">
-        <div class="summary">
-            <span class="name">数据接口</span>
-            <span class="type">object</span>
-            <span class="desc">接口数据</span>
-        </div>
-
-        <div class="detail">
-            <ul class="children">
-                <li>
-                    <div class="schema-block">
-                        <div class="summary">
-                            <span class="name">name</span>
-                            <span class="type">string</span>
-                            <span class="desc">这是用户的名称</span>
-                        </div>
-
-                        <div class="detail">
-                            <div class="description">
-                            </div>
-                            <ul class="constraint">
-                                <li>
-                                    <span class="filed">长度</span>
-                                    <span class="value">5 < 10</span>
-                                </li>
-                                <li>
-                                    <span class="filed">可取值</span>
-                                    <span class="value">1, 2, 5, 10</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="schema-block">
-                        <div class="summary">
-                            <span class="name">name</span>
-                            <span class="type">object</span>
-                            <span class="desc">这是用户的名称</span>
-                        </div>
-
-                        <div class="detail">
-                            <div class="description">
-                            </div>
-                            <ul class="constraint">
-                                <li>
-                                    <span class="filed">长度</span>
-                                    <span class="value">5 < 10</span>
-                                </li>
-                                <li>
-                                    <span class="filed">可取值</span>
-                                    <span class="value">1, 2, 5, 10</span>
-                                </li>
-                            </ul>
-
-                            <ul class="children">
-                                <li>
-                                    <div class="json-schema-doc">
-                                        <div class="schema-block">
-                                            <div class="summary">
-                                                <span class="name">name</span>
-                                                <span class="type">string</span>
-                                                <span class="desc">这是用户的名称</span>
-                                            </div>
-
-                                            <div class="detail">
-                                                <div class="description">
-                                                </div>
-                                                <ul class="constraint">
-                                                    <li>
-                                                        <span class="filed">长度</span>
-                                                        <span class="value">5 < 10</span>
-                                                    </li>
-                                                    <li>
-                                                        <span class="filed">可取值</span>
-                                                        <span class="value">1, 2, 5, 10</span>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="schema-block">
-                        <div class="summary">
-                            <span class="name">list</span>
-                            <span class="type">array</span>
-                            <span class="desc">这是用户的列表</span>
-                        </div>
-
-                        <div class="detail">
-                            <ul class="constraint">
-                                <li>
-                                    <span class="filed">长度</span>
-                                    <span class="value">5 < 10</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <ul class="children">
-                            <li>
-                                <div class="schema-block">
-                                    <div class="summary">
-                                        <span class="name">每个成员</span>
-                                        <span class="type">object</span>
-                                        <span class="desc">每个用户信息</span>
-                                    </div>
-
-                                    <div class="detail">
-
-                                        <ul class="children">
-                                            <li>
-                                                <div class="schema-block">
-                                                    <div class="summary">
-                                                        <span class="name">name</span>
-                                                        <span class="type">string</span>
-                                                        <span class="desc">用户名称</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="schema-block">
-                                                    <div class="summary">
-                                                        <span class="name">sex</span>
-                                                        <span class="type">string</span>
-                                                        <span class="desc">用户性别</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="schema-block">
-                                                    <div class="summary">
-                                                        <span class="name">age</span>
-                                                        <span class="type">number</span>
-                                                        <span class="desc">用户年龄</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
-
 
 </body>
 </html>

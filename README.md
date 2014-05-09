@@ -19,6 +19,24 @@ JsonSchemaDocGenerator( {
 
 ```
 
+## 如果想要获得包含交互功能的文档
+
+这个功能依赖jQuery
+
+```
+JsonSchemaDocGenerator.buildWithJQ( {
+    type: 'object',
+    description: '这是数据结构',
+    properties: {
+        name: {
+            type: 'string',
+            description: '用户名称'
+        }
+    }
+}, {}, targetDOM );
+```
+该方法将会渲染节点，添加事件，并放入targetDOM中。
+
 ### $ref
 
 如果schema包含了 `$ref` 关键词，回先从 schema 的本地的 `definitions` 中去查找，否则用户可以通过options来给定外部ref.
