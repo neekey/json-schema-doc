@@ -3,6 +3,8 @@
 用于生成json-schema文档的生成器。输出纯HTML。
 Documentation generator for json-schema.
 
+效果见[Demo](http://groups.demo.taobao.net/jsonnanny/json-schema-doc/test/index.html)
+
 ## 使用
 
 ```
