@@ -2,7 +2,7 @@
   "name": "json-schema-doc",
   "version": "0.0.1",
   "description": "documentation for json-schema",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

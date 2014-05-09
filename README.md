@@ -5,9 +5,26 @@ Documentation generator for json-schema.
 
 效果见[Demo](http://groups.demo.taobao.net/jsonnanny/json-schema-doc/test/index.html)
 
+## 安装
+
+NPM:
+
+```
+npm install json-schema-doc --save
+```
+
+[TBower](http://bower.fed.taobao.net/#/home)
+
+```
+tbower install json-schema-doc --save
+```
+
 ## 使用
 
 ```
+// 若在浏览器中使用，不借助包管理，默认是window.JsonSchemaDocGenerator
+var JsonSchemaDocGenerator = require( 'json-schema-doc' );
+
 JsonSchemaDocGenerator( {
     type: 'object',
     description: '这是数据结构',

@@ -297,7 +297,7 @@
     };
 
 
-    document.getElementById( 'J_SchemaRawHTML' ).innerHTML = JsonSchemaDocGenerator( realData, {
+    document.getElementById( 'J_SchemaRawHTML' ).innerHTML = JsonSchemaDocGenerator( testData, {
         refs: {
             'http://schema.remote.org/schema.json': {
                 type: "object",
@@ -318,8 +318,7 @@
 
     window.onload = function(){
 
-        debugger;
-        JsonSchemaDocGenerator.buildWithJQ( realData, {
+        JsonSchemaDocGenerator.buildWithJQ( testData, {
             refs: {
                 'http://schema.remote.org/schema.json': {
                     type: "object",
