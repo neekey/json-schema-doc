@@ -34,6 +34,7 @@
     border-radius: 5px;
     padding: 6px 6px 6px 20px;
     position: relative;
+    overflow: hidden;
 }
 .json-schema-doc .schema-block .schema-detail-trigger {
     cursor: pointer;
@@ -102,7 +103,7 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     text-align: right;
-    width: 70%;
+    max-width: 70%;
 }
 
 .json-schema-doc .schema-block .constraint {
