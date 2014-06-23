@@ -196,7 +196,7 @@
 
         // todo 枚举暂时只支持数字和字符串
         if( schema.enum ){
-            constraint.push( { field: '枚举值:', value: '<code>' + schema.enum.join( '</code><code>' ) });
+            constraint.push( { field: '枚举值:', value: '<code>' + schema.enum.join( '</code><code>' ) + '</code>' });
         }
 
         if( schema.default ){
