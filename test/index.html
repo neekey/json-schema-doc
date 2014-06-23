@@ -38,13 +38,30 @@
         properties: {
             name: {
                 type: 'string',
-                description: '用户名称',
+                description: '用户名称用户名称用户名称用户名称用户名称用户名称用户名称用户名称用户名称用户名称用户名称用户名称用户名称用户名称用户名称',
 
                 pattern: /lala/,
-                enum: [ 'lala', 'neneky'],
+                enum: [ 'lala', 'neneky', ''],
                 default: 'lala',
                 format: 'email',
                 allOf: [
+                    {
+                        type: 'string',
+                        maxLength: 10,
+                        minLength: 0
+                    },
+                    {
+                        type: 'string',
+                        maxLength: 10,
+                        minLength: 0
+                    }
+                ],
+                oneOf: [
+                    {
+                        type: 'string',
+                        maxLength: 10,
+                        minLength: 0
+                    },
                     {
                         type: 'string',
                         maxLength: 10,

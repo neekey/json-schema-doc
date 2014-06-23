@@ -98,6 +98,11 @@
 .json-schema-doc .schema-block .summary .desc {
     float: right;
     color: #999;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: right;
+    width: 70%;
 }
 
 .json-schema-doc .schema-block .constraint {
@@ -113,8 +118,23 @@
 .json-schema-doc .schema-block .constraint li {
     overflow: hidden;
 }
+.json-schema-doc .schema-block .constraint li .field {
+    display: inline-block;
+}
 .json-schema-doc .schema-block .constraint li .value {
+    display: inline-block;
     margin-left: 1em;
+    vertical-align: top;
+}
+.json-schema-doc .schema-block .constraint li .value > .schema-block {
+    margin-bottom: 5px;
+}
+.json-schema-doc .schema-block .constraint li .value > code {
+    color: #ccc;
+    background: white;
+    padding: 0 5px;
+    border-radius: 3px;
+    margin-right: 5px;
 }
 
 .json-schema-doc .schema-block .children > li + li {

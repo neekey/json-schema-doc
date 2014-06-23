@@ -70,27 +70,28 @@
                 schema-detail-trigger J_SchemaDetailTrigger\
                 <% } %>\
                 ">\
-                <% if( name ){ %><span class="name"><%=name%></span><% } %>\
-                <span class="type"><%=type%></span>\
-                <% if( required ){ %><span class="required">（必要）</span><% } %>\
-                <span class="desc"><%=(description && description.substring(0, 20))%><%=( description && description.length > 20 ? "..." : "")%></span>\
-            </div>\
-            <div class="detail">\
-                <% if( description && description.length > 20 ){ %>\
-                <div class="description">\
-                    <%=(description.replace( /\\n/g, "<br>" ))%>\
+                    <% if( name ){ %><span class="name"><%=name%></span><% } %>\
+                    <span class="type"><%=type%></span>\
+                    <% if( required ){ %><span class="required">（必要）</span><% } %>\
+                    <span class="desc"><%=description%></span>\
                 </div>\
-                <% } %>\
-                <% if( constraint ){ %>\
-                <ul class="constraint">\
-                    <%=constraint%>\
-                </ul>\
-                <% } %>\
-                <% if(children){ %>\
-                <ul class="children">\
-                    <%=children%>\
-                </ul>\
-                <% } %>\
+                <div class="detail">\
+                    <% if( description && description.length > 20 ){ %>\
+                    <div class="description">\
+                        <%=(description.replace( /\\n/g, "<br>" ))%>\
+                    </div>\
+                    <% } %>\
+                    <% if( constraint ){ %>\
+                    <ul class="constraint">\
+                        <%=constraint%>\
+                    </ul>\
+                    <% } %>\
+                    <% if(children){ %>\
+                    <ul class="children">\
+                        <%=children%>\
+                    </ul>\
+                    <% } %>\
+                </div>\
             </div>',
         constraint: '\
             <% if( list ) for( var item, i = 0; i < list.length; i++){ item = list[ i ]; %>\
@@ -195,15 +196,15 @@
 
         // todo 枚举暂时只支持数字和字符串
         if( schema.enum ){
-            constraint.push( { field: '枚举值:', value: schema.enum.join( ', ' ) });
+            constraint.push( { field: '枚举值:', value: '<code>' + schema.enum.join( '</code><code>' ) });
         }
 
         if( schema.default ){
-            constraint.push( { field: '默认值:', value: schema.default });
+            constraint.push( { field: '默认值:', value: '<code>' + schema.default + '</code>' });
         }
 
         if( schema.format ){
-            constraint.push( { field: '格式规范:', value: schema.format });
+            constraint.push( { field: '格式规范:', value: '<code>' + schema.format + '</code>' });
         }
 
         if( schema.allOf && schema.allOf.length ){
