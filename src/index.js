@@ -64,7 +64,8 @@
          */
         schemaBlock: '\
             <div class="schema-block schema-block-<%=type%> \
-            <% if( isRoot || !interactive ){ %> unfold <% } %>">\
+            <% if( isRoot || !interactive ){ %> unfold <% } %>\
+            <% if( external ){ %>external<% } %>">\
                 <div class="summary\
                 <% if( !isRoot && interactive && ( ( description && description.length > 20 ) || constraint || children ) ){ %> \
                 schema-detail-trigger J_SchemaDetailTrigger\
@@ -73,6 +74,7 @@
                     <% if( name ){ %><span class="name"><%=name%></span><% } %>\
                     <span class="type"><%=type%></span>\
                     <% if( required ){ %><span class="required">（必要）</span><% } %>\
+                    <% if( external ){ %><span class="external">（外部引用，<a target="_blank" href="<%=externalURL%>"><% if(externalName){ %><%=externalName%><% } else {%>查看<% } %></a>）</span><% } %>\
                     <span class="desc"><%=description%></span>\
                 </div>\
                 <div class="detail">\
@@ -95,7 +97,7 @@
             </div>',
         constraint: '\
             <% if( list ) for( var item, i = 0; i < list.length; i++){ item = list[ i ]; %>\
-            <li>\
+            <li <% if( item.block ){ %> class="constraint-block" <% } %> >\
                 <div class="field"><%=item.field%></div>\
                 <div class="value"><%=item.value%></div>\
             </li>\
@@ -127,7 +129,7 @@
      * 若需要交互功能，则用户可以自带jQuery，然后调用这个方法
      * @param schema
      * @param options
-     * @param {ELEMENTtarget
+     * @param {ELEMENT} target
      * @returns {*}
      */
     Generator.buildWithJQ = function( schema, options, target ){
@@ -159,6 +161,14 @@
 
     Generator._generator = function( name, schema, wholeScheme, options ){
 
+        var constraint = [];
+        var index;
+        var item;
+        var cons = [];
+        var external = false;
+        var externalURL = null;
+        var externalName = null;
+
         // 先检查是否有 $ref
         if( schema.$ref ){
 
@@ -168,20 +178,20 @@
             }
             // 若在本地找不到（可能是网络请求或者写错了）
             else if( options.refs && options.refs[ schema.$ref ] ){
+                debugger;
+                external = true;
+                externalURL = schema.$ref;
                 // 查找配置中是否给定了
                 schema = options.refs[ schema.$ref ];
+                externalName = schema.title;
             }
             else {
-                schema = {
-                    description: '具体格式参考：' + schema.$ref
-                };
+                external = true;
+                externalURL = schema.$ref;
             }
         }
 
-        var constraint = [];
-        var index;
-        var item;
-        var cons = [];
+
 
         /**
          * 构建通用约束
@@ -216,7 +226,7 @@
                 cons.push( this._generator( '约束' + ( index + 1 ), item, wholeScheme, options ));
             }
 
-            constraint.push( { field: '需要遵循所有约束:', value: cons.join( ' ' ) });
+            constraint.push( { field: '需要满足所有约束:', value: cons.join( ' ' ), block: true });
         }
 
         if( schema.oneOf && schema.oneOf.length ){
@@ -228,7 +238,7 @@
                 cons.push( this._generator( '约束' + ( index + 1 ), item, wholeScheme, options ));
             }
 
-            constraint.push( { field: '需要遵循其中的某个约束:', value: cons.join( ' ' ) });
+            constraint.push( { field: '需要满足其中的某个约束:', value: cons.join( ' ' ), block: true });
         }
 
         if( schema.anyOf && schema.anyOf.length ){
@@ -240,12 +250,12 @@
                 cons.push( this._generator( '约束' + ( index + 1 ), item, wholeScheme, options ));
             }
 
-            constraint.push( { field: '需要遵循其中任意个约束:', value: cons.join( ' ' ) });
+            constraint.push( { field: '需要满足其中任意个约束:', value: cons.join( ' ' ), block: true });
         }
 
         if( schema.not ){
-            constraint.push( { field: '不应该遵循该约束:',
-                value: cons.push( this._generator( '约束', schema.not, wholeScheme, options ))
+            constraint.push( { field: '不应该满足该约束:',
+                value: cons.push( this._generator( '约束', schema.not, wholeScheme, options )), block: true
             });
         }
 
@@ -271,14 +281,17 @@
 
         // 渲染用的数据
         var renderData = {
-            name: name,
+            name: name || schema.title,
             type: schema.type,
             description: schema.description,
             constraint: constraintStr ? constraintStr.replace( /\s*/, '' ) : constraintStr,
             children: childrenStr ? childrenStr.replace( /\s*/, '' ) : childrenStr,
             isRoot: schema === wholeScheme,
             required: schema.required,
-            interactive: options.interactive
+            interactive: options.interactive,
+            external: external,
+            externalURL: externalURL,
+            externalName: externalName
         };
 
         // 进行block的渲染
@@ -319,7 +332,7 @@
                     }
                     // 若为对象
                     else {
-                        con.value = this._generator( '还需要满足的约束', value, wholeScheme, options );
+                        con.value = this._generator( '还需要满足:', value, wholeScheme, options );
                     }
 
                     constraint.push( con );
@@ -413,11 +426,11 @@
 
                 for( index = 0; index < schema.items.length; index++ ){
                     item = schema.items[ index ];
-                    children.push( this._generator( '第' + ( index + 1 ) + '个成员', item, wholeScheme, options ) );
+                    children.push( this._generator( '[' + index + '] ', item, wholeScheme, options ) );
                 }
             }
             else {
-                children.push( this._generator( '所有成员', schema.items, wholeScheme, options ) );
+                children.push( this._generator( '[n] ', schema.items, wholeScheme, options ) );
             }
         }
 

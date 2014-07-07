@@ -2,6 +2,10 @@
     font-size: 14px;
 }
 
+.json-schema-doc a {
+    color: rgb(0, 122, 255);
+}
+
 .json-schema-doc .schema-block {
     font-family: arial;
     border-radius: 5px;
@@ -141,3 +145,30 @@
 .json-schema-doc .schema-block .children > li + li {
     margin-top: 5px;
 }
+
+/* 若为外部schema */
+.json-schema-doc .schema-block.external {
+    border-color: orange;
+    background-color: rgba(253, 235, 202, 0.2);
+}
+
+.json-schema-doc .schema-block-object .summary .external {
+    color: rgb(216, 147, 22);
+}
+
+.json-schema-doc .schema-block-object .summary .external > a {
+    color: rgb(216, 147, 22);
+}
+
+/* 若为XOf 类型的约束 */
+.json-schema-doc .schema-block .constraint li.constraint-block > .value {
+    float: none;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.json-schema-doc .schema-block .constraint li.constraint-block > .field {
+    float: none;
+}
+
+
