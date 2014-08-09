@@ -67,7 +67,7 @@
             <% if( isRoot || !interactive ){ %> unfold <% } %>\
             <% if( external ){ %>external<% } %>">\
                 <div class="summary\
-                <% if( !isRoot && interactive && ( ( description && description.length > 20 ) || constraint || children ) ){ %> \
+                <% if( !isRoot && interactive && ( description || constraint || children ) ){ %> \
                 schema-detail-trigger J_SchemaDetailTrigger\
                 <% } %>\
                 ">\
@@ -75,10 +75,10 @@
                     <span class="type"><%=type%></span>\
                     <% if( required ){ %><span class="required">（必要）</span><% } %>\
                     <% if( external ){ %><span class="external">（外部引用，<a target="_blank" href="<%=externalURL%>"><% if(externalName){ %><%=externalName%><% } else {%>查看<% } %></a>）</span><% } %>\
-                    <span class="desc"><%=description%></span>\
+                    <span class="desc"><%=(title || description )%></span>\
                 </div>\
                 <div class="detail">\
-                    <% if( description && description.length > 20 ){ %>\
+                    <% if( description ){ %>\
                     <div class="description">\
                         <%=(description.replace( /\\n/g, "<br>" ))%>\
                     </div>\
@@ -176,22 +176,35 @@
             if( ret && ret[1] && wholeScheme.definitions && wholeScheme.definitions[ ret[1] ]){
                 schema = wholeScheme.definitions[ ret[1] ];
             }
-            // 若在本地找不到（可能是网络请求或者写错了）
+            // 查找配置中是否给定了
             else if( options.refs && options.refs[ schema.$ref ] ){
-                debugger;
                 external = true;
                 externalURL = schema.$ref;
-                // 查找配置中是否给定了
-                schema = options.refs[ schema.$ref ];
+                // 简单clone下
+                var externalSchema = JSON.parse( JSON.stringify( options.refs[ schema.$ref ] ) );
+                var externalKey = null;
+
+                /**
+                 * 特殊逻辑
+                 * 若required和$ref同时出现，且$ref为object类型，则只展示required中指定的字段
+                 */
+                if( schema.required && externalSchema.type == 'object' && externalSchema.properties ){
+                    for( externalKey in externalSchema.properties ){
+                        if( schema.required.indexOf( externalKey ) < 0 ){
+                            delete externalSchema.properties[ externalKey ];
+                        }
+                    }
+                }
+
+                schema = externalSchema;
                 externalName = schema.title;
             }
+            // 若在本地找不到（可能是网络请求或者写错了）
             else {
                 external = true;
                 externalURL = schema.$ref;
             }
         }
-
-
 
         /**
          * 构建通用约束
@@ -282,6 +295,7 @@
         // 渲染用的数据
         var renderData = {
             name: name || schema.title,
+            title: name ? schema.title : '',
             type: schema.type,
             description: schema.description,
             constraint: constraintStr ? constraintStr.replace( /\s*/, '' ) : constraintStr,

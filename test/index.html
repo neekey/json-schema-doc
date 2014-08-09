@@ -156,7 +156,8 @@
                         $ref: '#/definitions/cjob'
                     },
                     {
-                        $ref: 'http://schema.remote.org/schema.json'
+                        $ref: 'http://schema.remote.org/schema.json',
+                        required: [ 'age', 'sex' ]
                     }
                 ]
             }
@@ -327,6 +328,10 @@
                     age: {
                         type: "integer",
                         description: "职业要求的年龄"
+                    },
+                    sex: {
+                        type: "string",
+                        description: "性别的要求"
                     }
                 }
             }
@@ -349,6 +354,10 @@
                         age: {
                             type: "integer",
                             description: "职业要求的年龄"
+                        },
+                        sex: {
+                            type: "string",
+                            description: "性别的要求"
                         }
                     }
                 }
