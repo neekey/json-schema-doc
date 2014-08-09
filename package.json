@@ -1,6 +1,6 @@
 {
   "name": "json-schema-doc",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "documentation for json-schema",
   "main": "src/index.js",
   "scripts": {
