@@ -195,7 +195,7 @@
                  * 特殊逻辑
                  * 若required和$ref同时出现，且$ref为object类型，则只展示required中指定的字段
                  */
-                if( schema.required && externalSchema.type == 'object' && externalSchema.properties ){
+                if( schema.required && schema.required.length && externalSchema.type == 'object' && externalSchema.properties ){
                     for( externalKey in externalSchema.properties ){
                         if( schema.required.indexOf( externalKey ) < 0 ){
                             delete externalSchema.properties[ externalKey ];
