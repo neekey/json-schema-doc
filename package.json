@@ -1,6 +1,6 @@
 {
-  "name": "json-schema-doc",
-  "version": "0.0.6",
+  "name": "@ali/json-schema-doc",
+  "version": "0.0.1",
   "description": "documentation for json-schema",
   "main": "src/index.js",
   "scripts": {
@@ -9,6 +9,9 @@
   "repository": {
     "type": "git",
     "url": "git@gitlab.alibaba-inc.com:jsonnanny/json-schema-doc.git"
+  },
+  "publishConfig": {
+    "registry": "http://registry.npm.alibaba-inc.com"
   },
   "keywords": [
     "json-schema",

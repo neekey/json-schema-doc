@@ -180,6 +180,13 @@
             else if( options.refs && options.refs[ schema.$ref ] ){
                 external = true;
                 externalURL = schema.$ref;
+                if( /[^\/@]+\/[^\/@]+(@[\d\.]+)?/.test( externalURL ) ){
+                    externalURL = 'http://dip.taobao.net/public/schemas/' + encodeURIComponent( externalURL ) + '/content';
+
+                    if( typeof options.namespaceRemoteURL == 'function' ){
+                        externalURL = options.namespaceRemoteURL( externalURL );
+                    }
+                }
                 // 简单clone下
                 var externalSchema = JSON.parse( JSON.stringify( options.refs[ schema.$ref ] ) );
                 var externalKey = null;
